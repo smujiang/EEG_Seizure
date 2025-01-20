@@ -21,7 +21,7 @@ def main(edf_file, outFile):
 
     best_thresh = load_thresh()
 
-    model = load_model(window_size_sec, fs)
+    model = load_model(window_size_sec, fs, device)
     model.to(device)
 
     recording_duration = int(eeg.data.shape[1] / eeg.fs)
@@ -36,11 +36,12 @@ def main(edf_file, outFile):
     print("Saved to %s" % outFile)
 
 if __name__ == "__main__":
-    data_dir = "/Users/jjiang10/Data/EEG/BIDS_Siena"
+    # data_dir = "/Users/jjiang10/Data/EEG/BIDS_Siena"
+    data_dir = "/data/jjiang10/Data/EEG/BIDS_Siena"
     edf_file_list = glob.glob(data_dir + "/sub-*/ses-*/eeg/*.edf")
     for edf_file in natsort.natsorted(edf_file_list):
         print("Processing %s" % edf_file)
-        outFile = edf_file.replace("BIDS_Siena", "BIDS_Siena_pred").replace(".edf", ".tsv")
+        outFile = edf_file.replace("BIDS_Siena", "BIDS_Siena_zhu_pred").replace(".edf", ".tsv")
         if os.path.exists(outFile):
             print("Already exists. Skip.")
         else:

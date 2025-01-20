@@ -4,7 +4,7 @@ from scipy.ndimage import gaussian_filter1d
 import scipy as sp
 import os
 
-from eventnet.architecture import UNet
+from architecture import UNet
 
 def load_model():
     model = UNet(input_channels=19)

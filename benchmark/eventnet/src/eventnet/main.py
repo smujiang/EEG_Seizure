@@ -1,9 +1,10 @@
 import torch
 import numpy as np
-
+import glob, os
+import natsort
 from epilepsy2bids.annotations import Annotations
 from epilepsy2bids.eeg import Eeg
-from eventnet.utils import load_model, get_dataloader, predict
+from utils import load_model, get_dataloader, predict
 
 def main(edf_file, outFile):
     eeg = Eeg.loadEdfAutoDetectMontage(edfFile=edf_file)
@@ -31,3 +32,21 @@ def main(edf_file, outFile):
         y_predict = np.zeros(int(recording_duration*eeg.fs))
     hyp = Annotations.loadMask(y_predict, eeg.fs)
     hyp.saveTsv(outFile)
+
+
+if __name__ == "__main__":
+    # data_dir = "/Users/jjiang10/Data/EEG/BIDS_Siena"
+    data_dir = "/data/jjiang10/Data/EEG/BIDS_Siena"
+    edf_file_list = glob.glob(data_dir + "/sub-*/ses-*/eeg/*.edf")
+    for edf_file in natsort.natsorted(edf_file_list):
+        print("Processing %s" % edf_file)
+        outFile = edf_file.replace("BIDS_Siena", "BIDS_Siena_event_pred").replace(".edf", ".tsv")
+        if os.path.exists(outFile):
+            print("Already exists. Skip.")
+        else:
+            dir_ele = os.path.split(outFile)
+            if not os.path.exists(dir_ele[0]):
+                os.makedirs(dir_ele[0])
+            main(edf_file, outFile)
+    print("Done")
+
