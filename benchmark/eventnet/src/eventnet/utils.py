@@ -38,7 +38,7 @@ def custom_collate_fn(batch):
 
 def get_dataloader(data, window_size_sec=120, fs=256):
     dataset = SeizureDataset(data=data, window_size_sec=window_size_sec, fs=fs)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=128, shuffle=False, n_workers=4)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=128, shuffle=False, num_workers=4)
     return dataloader
 
 def events_to_mask(output_centers, output_duration, window_size_sec, fs=256, thresh=0.5):
@@ -49,9 +49,15 @@ def events_to_mask(output_centers, output_duration, window_size_sec, fs=256, thr
 
     mask = np.zeros(centers.shape)
     for i in range(centers.shape[0]):
-        centers_smooth = gaussian_filter1d(centers[i, :], 100)
+        current_data = centers[i, :]
+        centers_smooth = gaussian_filter1d(current_data, 100)
         durations_smooth = durations[i, :]
-        peaks = sp.signal.find_peaks(centers_smooth, height=thresh, distance=fs*60)[0]  # at least 1 minute distance between peaks
+        # peaks = sp.signal.find_peaks(centers_smooth, height=thresh, distance=fs*60)[0]
+        peaks = []  # at least 1 minute distance between peaks
+        for channel in centers_smooth:
+            peak = sp.signal.find_peaks(channel, height=thresh, distance=fs*60)[0]
+            peaks.append(peak)
+        
         pred_event = []
         
         for peak in peaks:
