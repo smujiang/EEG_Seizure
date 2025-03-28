@@ -29,6 +29,7 @@ class MySeizureDataset(nn.Module):
         data_std = np.std(eeg.data)
         self.data = (eeg.data - data_mean) / data_std
 
+        self.channels = eeg.channels
         self.window_size = int(window_size_sec*fs)
         self.fs = fs
         self.recording_duration = int(self.data.shape[1] / fs)
@@ -76,8 +77,6 @@ class MySeizureDataset(nn.Module):
         x = self.preprocess_clip(eeg_clip)
         y = self.mask2label(mask_clip)
         return torch.tensor(x), torch.tensor(y)
-
-
 
 if __name__ == "__main__":
     data_root = "/data/jjiang10/Data/EEG/BIDS_Siena"
