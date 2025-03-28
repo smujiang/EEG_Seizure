@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-
+import random
 
 
 class BalancedSeizureDataset(nn.Module):
@@ -34,19 +34,54 @@ class BalancedSeizureDataset(nn.Module):
         m_clip = self.mask_clip[self.window_idx[idx]:self.window_idx[idx]+self.window_size]
         return e_clip, m_clip
 
+
+class BalancedSeizureDataset_from_List(nn.Module):
+    def __init__(self, eeg_npy_file_list, window_size_points=6400, sample_stride=256, transform=None):
+        super(BalancedSeizureDataset, self).__init__()
+        self.eeg_npy_files = eeg_npy_file_list
+        
+        #Default: window_size_sec = 25, fs = 256, so:  window_size_points=6400 (25*256), sample_stride=256
+        # but we can use smaller sampling stride and window size, but the model layer dimensions may need to be modifed.
+        self.window_size = window_size_points
+        self.sample_stride = sample_stride
+
+
+    def __len__(self):
+        return int(len(self.window_idx))
+
+    # if the mean of the mask is greater than threshold, return 1, else return 0
+    def mask2label(self, m_clip, threshold=0.5):
+        label = np.mean(m_clip) > threshold
+        return label
+
+    def __getitem__(self, idx):
+        data_dict = np.load(self.eeg_npy_files[idx], allow_pickle=True).item()
+        self.eeg_clip = data_dict['sampled_clips']
+        self.mask_clip = data_dict['mask_clips']
+        self.fs = data_dict['fs']
+        eeg_clip_size = self.eeg_clip.shape[1] 
+        window_idx = np.arange(0, eeg_clip_size-self.window_size-1, self.sample_stride).astype(int)
+        rand_idx = random.choice(window_idx)
+        e_clip = self.eeg_clip[:, rand_idx:rand_idx+self.window_size]
+        m_clip = self.mask_clip[rand_idx:rand_idx+self.window_size]
+        return e_clip, m_clip
+
+
+
 if __name__ == "__main__":
     from utils import plot_eeg
 
-    data_dir = "/Users/jjiang10/Data/EEG/BIDS_Siena_pred"
+    data_dir = "/Users/jjiang10/Data/EEG/BIDS_Siena_balanced"
     fn_list = os.listdir(data_dir)
 
-    PLOT = True
+    PLOT = False
 
     total = 0
     for fn in fn_list:
         if not fn.endswith(".npy"):
             continue
         eeg_npy_fn = os.path.join(data_dir, fn)
+        print(fn)
         eeg_dataset = BalancedSeizureDataset(eeg_npy_fn, window_size_points=6400, sample_stride=256)
 
         total += len(eeg_dataset)
