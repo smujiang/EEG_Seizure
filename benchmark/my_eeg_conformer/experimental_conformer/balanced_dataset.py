@@ -37,7 +37,7 @@ class BalancedSeizureDataset(nn.Module):
 
 class BalancedSeizureDataset_from_List(nn.Module):
     def __init__(self, eeg_npy_file_list, window_size_points=6400, sample_stride=256, transform=None):
-        super(BalancedSeizureDataset, self).__init__()
+        super(BalancedSeizureDataset_from_List, self).__init__()
         self.eeg_npy_files = eeg_npy_file_list
         
         #Default: window_size_sec = 25, fs = 256, so:  window_size_points=6400 (25*256), sample_stride=256
@@ -47,7 +47,7 @@ class BalancedSeizureDataset_from_List(nn.Module):
 
 
     def __len__(self):
-        return int(len(self.window_idx))
+        return int(len(self.eeg_npy_files))
 
     # if the mean of the mask is greater than threshold, return 1, else return 0
     def mask2label(self, m_clip, threshold=0.5):
@@ -65,7 +65,6 @@ class BalancedSeizureDataset_from_List(nn.Module):
         e_clip = self.eeg_clip[:, rand_idx:rand_idx+self.window_size]
         m_clip = self.mask_clip[rand_idx:rand_idx+self.window_size]
         return e_clip, m_clip
-
 
 
 if __name__ == "__main__":
