@@ -1,0 +1,11 @@
+services:
+  eeg_seizure:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: tail -f /dev/null # This keeps the container running
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app # Mount the code
+      - /Users/fchen2/dev/team_ai/jiangjun/Data:/app/benchmark/Data:ro # Mount data as read-only
