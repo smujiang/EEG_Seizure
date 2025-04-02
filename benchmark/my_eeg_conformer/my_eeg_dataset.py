@@ -79,6 +79,7 @@ class MySeizureDataset(nn.Module):
         return torch.tensor(x), torch.tensor(y)
 
 if __name__ == "__main__":
+    # Please change the data_root to docker volume path, refer to docker-compose.yml
     data_root = "/data/jjiang10/Data/EEG/BIDS_Siena"
     
     train_cases = ['sub-00', 'sub-01', 'sub-03', 'sub-05', 'sub-06', 'sub-07', 'sub-09','sub-10', 'sub-11', 'sub-12']
