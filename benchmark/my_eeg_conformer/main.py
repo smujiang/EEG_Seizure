@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 import os
 from config import Config, default_config
 import torchvision.models as models
-from my_models import my_cnn_model
+from my_models import my_conformer_model
 import torch.nn as nn
 from torch.autograd import Variable
 import random
@@ -64,7 +64,7 @@ def create_model():
     config.data_root = "/data/jjiang10/Data/EEG/BIDS_Siena"
     config.train_cases = ['sub-00', 'sub-01', 'sub-03', 'sub-05', 'sub-06', 'sub-07', 'sub-09','sub-10', 'sub-11', 'sub-12']
 
-    model = my_cnn_model()
+    model = my_conformer_model()
     
     return model, config
 
